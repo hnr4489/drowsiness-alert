@@ -5,8 +5,8 @@ function App() {
 
   const fetchLogs = async () => {
     try {
-      // Fixed: Only one fetch command now!
-      const response = await fetch('http://127.0.0.1:5000/logs');
+      // 🚀 The Magic Link: Now pointing to your Cloud Server!
+      const response = await fetch('https://drowsiness-alert.vercel.app/logs');
       const data = await response.json();
       setLogs(data);
     } catch (error) {

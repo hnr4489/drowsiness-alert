@@ -62,7 +62,8 @@ while True:
                         pygame.mixer.music.play()
                     
                     try:
-                        requests.post("http://127.0.0.1:5000/log", json={"status": "Drowsy"}, timeout=0.5)
+                        # Change it to look exactly like this:
+                        requests.post("https://drowsiness-alert.vercel.app/log", json={"status": "Drowsy"}, timeout=0.5)
                         print(">>> ALERT SENT!")
                     except:
                         pass
