@@ -19,3 +19,4 @@ app.get('/logs', (req, res) => {
 });
 
 app.listen(5000, "0.0.0.0", () => console.log("✅ Server alive on Port 5000"));
+module.exports = app;
