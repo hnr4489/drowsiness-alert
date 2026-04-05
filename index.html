@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login - AI Dashcam</title>
+    <style>
+        body {
+            background-color: #121212; color: white; font-family: sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+        }
+        .login-box {
+            background-color: #1e2126; padding: 40px; border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); text-align: center; width: 350px;
+        }
+        input {
+            width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 5px; box-sizing: border-box;
+            background-color: #2a2d35; color: white;
+        }
+        input::placeholder { color: #aaa; }
+        button {
+            width: 100%; padding: 12px; background-color: lime; color: black;
+            border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem;
+        }
+        button:hover { background-color: #32cd32; }
+        #error-msg { 
+            color: #ff4c4c; display: none; margin-top: 15px; font-size: 0.9rem; text-align: left;
+            background: rgba(255, 76, 76, 0.1); padding: 10px; border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h2>🚗 AI Dashcam Secure Login</h2>
+        <input type="email" id="email" placeholder="Registered Email" required>
+        <input type="password" id="password" placeholder="Password (6-15 chars)" required maxlength="15">
+        <button onclick="attemptLogin()">Secure Login</button>
+        <p id="error-msg"></p>
+    </div>
+
+    <script>
+        function attemptLogin() {
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("password").value;
+            const errorMsg = document.getElementById("error-msg");
+            
+            // 1. Check if Email is valid format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError("❌ Please enter a valid email address.");
+                return;
+            }
+
+            // 2. Check Password Complexity (6-15 chars, Upper, Lower, Number, Special)
+            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
+            if (!passRegex.test(pass)) {
+                showError("❌ Password must be 6-15 characters and contain:<br>• One uppercase letter<br>• One lowercase letter<br>• One number<br>• One special character (@$!%*?&)");
+                return;
+            }
+
+            // 3. Simulated Database & Verification Check
+            // Since we don't have a backend yet, we test against this dummy "verified" account
+            const verifiedEmail = "test@dashcam.com";
+            const correctPass = "Driver123!"; // This matches all your required rules
+
+            if (email === verifiedEmail && pass === correctPass) {
+                // Success! Redirect to the AI Camera
+                window.location.href = "app.html";
+            } else if (email !== verifiedEmail) {
+                // Simulating an unverified or unregistered email
+                showError("⚠️ This email is either not registered or has not been verified yet. Please check your inbox for a verification link.");
+            } else {
+                showError("❌ Incorrect password.");
+            }
+        }
+
+        function showError(msg) {
+            const errorEl = document.getElementById("error-msg");
+            errorEl.innerHTML = msg; // Using innerHTML so we can use <br> for bullet points
+            errorEl.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
