@@ -3,84 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login - AI Dashcam</title>
+    <title>Secure OTP Login - AI Dashcam</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Initializing with your NEW Public Key
+            emailjs.init("OZNLclrooFqNEEqWR"); 
+        })();
+    </script>
     <style>
-        body {
-            background-color: #121212; color: white; font-family: sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
-        }
-        .login-box {
-            background-color: #1e2126; padding: 40px; border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); text-align: center; width: 350px;
-        }
-        input {
-            width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 5px; box-sizing: border-box;
-            background-color: #2a2d35; color: white;
-        }
-        input::placeholder { color: #aaa; }
-        button {
-            width: 100%; padding: 12px; background-color: lime; color: black;
-            border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem;
-        }
+        body { background-color: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background-color: #1e2126; padding: 40px; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); text-align: center; width: 350px; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 5px; box-sizing: border-box; background-color: #2a2d35; color: white; font-size: 1rem; }
+        input:focus { border-color: lime; outline: none; }
+        button { width: 100%; padding: 12px; background-color: lime; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; transition: 0.2s; }
         button:hover { background-color: #32cd32; }
-        #error-msg { 
-            color: #ff4c4c; display: none; margin-top: 15px; font-size: 0.9rem; text-align: left;
-            background: rgba(255, 76, 76, 0.1); padding: 10px; border-radius: 5px;
-        }
+        button:disabled { background-color: #444; color: #888; cursor: not-allowed; }
+        #error-msg, #success-msg { display: none; margin-top: 15px; font-size: 0.9rem; text-align: left; padding: 10px; border-radius: 5px; }
+        #error-msg { color: #ff4c4c; background: rgba(255, 76, 76, 0.1); border: 1px solid #ff4c4c; }
+        #success-msg { color: lime; background: rgba(0, 255, 0, 0.1); border: 1px solid lime; }
+        #otp-section { display: none; }
     </style>
 </head>
 <body>
 
     <div class="login-box">
-        <h2>🚗 AI Dashcam Secure Login</h2>
-        <input type="email" id="email" placeholder="Registered Email" required>
-        <input type="password" id="password" placeholder="Password (6-15 chars)" required maxlength="15">
-        <button onclick="attemptLogin()">Secure Login</button>
+        <h2>🚗 AI Dashcam Login</h2>
+        
+        <div id="email-section">
+            <input type="email" id="email" placeholder="Enter your Email" required>
+            <button onclick="sendOTP()" id="send-btn">Send OTP</button>
+        </div>
+
+        <div id="otp-section">
+            <p style="color: #aaa; font-size: 0.8rem;">An OTP has been sent to your inbox.</p>
+            <input type="text" id="otp-input" placeholder="6-digit code" maxlength="6">
+            <button onclick="verifyOTP()" id="verify-btn">Verify & Login</button>
+        </div>
+
         <p id="error-msg"></p>
+        <p id="success-msg"></p>
     </div>
 
     <script>
-        function attemptLogin() {
+        let generatedOTP = "";
+
+        function sendOTP() {
             const email = document.getElementById("email").value;
-            const pass = document.getElementById("password").value;
-            const errorMsg = document.getElementById("error-msg");
-            
-            // 1. Check if Email is valid format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
+            const btn = document.getElementById("send-btn");
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showError("❌ Please enter a valid email address.");
                 return;
             }
 
-            // 2. Check Password Complexity (6-15 chars, Upper, Lower, Number, Special)
-            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
-            if (!passRegex.test(pass)) {
-                showError("❌ Password must be 6-15 characters and contain:<br>• One uppercase letter<br>• One lowercase letter<br>• One number<br>• One special character (@$!%*?&)");
-                return;
-            }
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            const templateParams = {
+                to_email: email,
+                otp: generatedOTP
+            };
 
-            // 3. Simulated Database & Verification Check
-            // Since we don't have a backend yet, we test against this dummy "verified" account
-            const verifiedEmail = "test@dashcam.com";
-            const correctPass = "Driver123!"; // This matches all your required rules
+            btn.innerText = "Sending...";
+            btn.disabled = true;
 
-            if (email === verifiedEmail && pass === correctPass) {
-                // Success! Redirect to the AI Camera
+            emailjs.send('service_i0v4u5c', 'template_i0kie3b', templateParams)
+                .then(function() {
+                    document.getElementById("email-section").style.display = "none";
+                    document.getElementById("otp-section").style.display = "block";
+                    showSuccess("✅ OTP sent successfully!");
+                }, function(error) {
+                    console.error('EmailJS Error:', error);
+                    showError("❌ Failed to send. Ensure the 'To Email' field in EmailJS is set to {{to_email}}");
+                    btn.innerText = "Send OTP";
+                    btn.disabled = false;
+                });
+        }
+
+        function verifyOTP() {
+            const userOTP = document.getElementById("otp-input").value;
+            if (userOTP === generatedOTP) {
                 window.location.href = "app.html";
-            } else if (email !== verifiedEmail) {
-                // Simulating an unverified or unregistered email
-                showError("⚠️ This email is either not registered or has not been verified yet. Please check your inbox for a verification link.");
             } else {
-                showError("❌ Incorrect password.");
+                showError("❌ Incorrect OTP. Please try again.");
             }
         }
 
         function showError(msg) {
+            document.getElementById("success-msg").style.display = "none";
             const errorEl = document.getElementById("error-msg");
-            errorEl.innerHTML = msg; // Using innerHTML so we can use <br> for bullet points
+            errorEl.innerHTML = msg;
             errorEl.style.display = "block";
         }
-    </script>
 
+        function showSuccess(msg) {
+            document.getElementById("error-msg").style.display = "none";
+            const successEl = document.getElementById("success-msg");
+            successEl.innerHTML = msg;
+            successEl.style.display = "block";
+        }
+    </script>
 </body>
 </html>
